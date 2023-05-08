@@ -5,7 +5,7 @@ type ByteView struct {
 }
 
 func (b ByteView) Len() int {
-	return b.Len()
+	return len(b.b)
 }
 
 // ByteSlice returns a copy of the data as a byte slice.
