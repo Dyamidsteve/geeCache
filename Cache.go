@@ -36,7 +36,7 @@ func (c *cache) Get(key string) (bv ByteView, ok bool) {
 
 	if val, ok := c.lru.Get(key); ok {
 
-		return val.(ByteView), true
+		return *val.(*ByteView), true
 	}
 
 	return
