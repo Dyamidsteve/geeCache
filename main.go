@@ -6,20 +6,20 @@ import (
 	"net/http"
 )
 
-var db = map[string]string{
-	"Tom":  "630",
-	"Jack": "589",
-	"Sam":  "567",
-}
+// type server int
 
-type server int
-
-func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.URL.Path)
-	w.Write([]byte("hellow world"))
-}
+// func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// 	log.Println(r.URL.Path)
+// 	w.Write([]byte("hellow world"))
+// }
 
 func main() {
+	db := map[string]string{
+		"Tom":  "630",
+		"Jack": "589",
+		"Sam":  "567",
+	}
+	//添加group,并设置数据源Getter方法
 	NewGroup("scores", GetterFunc(func(key string) ([]byte, error) {
 		log.Println("[slowDB] search key", key)
 		if v, ok := db[key]; ok {
@@ -27,6 +27,12 @@ func main() {
 		}
 		return nil, fmt.Errorf("%s not exist", key)
 	}), 2<<10)
+
+	addr := "localhost:9999"
+	peer := NewHTTPPool(addr)
+
+	log.Printf("Http Server start on %s", addr)
+	log.Fatal(http.ListenAndServe(addr, peer))
 
 }
 

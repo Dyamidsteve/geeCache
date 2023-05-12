@@ -2,15 +2,18 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
 const (
-	defaultBasePath = "/_geecache"
+	defaultBasePath = "/_geecache/"
 )
 
+// ****HTTP服务端
 // HTTPPool implements PeerPicker for a pool of HTTP peers.
 type HTTPPool struct {
 	self     string //记录自己的地址 IP:Port
@@ -63,4 +66,36 @@ func (p *HTTPPool) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Write(view.ByteSlice())
+}
+
+// ******Http客户端
+type httpGetter struct {
+	baseURL string
+}
+
+func (h *httpGetter) Get(group, key string) ([]byte, error) {
+	url := fmt.Sprintf(
+		"%v%v%v",
+		h.baseURL,
+		url.QueryEscape(group),
+		url.QueryEscape(key),
+	)
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	//客户端必须关闭body
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("server returnd:%v", resp.Status)
+	}
+
+	bytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return bytes, nil
 }
