@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	db = map[string]string{
+	Db = map[string]string{
 		"Tom":  "630",
 		"Jack": "589",
 		"Sam":  "567",
@@ -30,11 +30,12 @@ func TestGetter(t *testing.T) {
 
 func TestGroupGet(t *testing.T) {
 	//记录访问每个key的次数
-	loadCounts := make(map[string]int, len(db))
+	loadCounts := make(map[string]int, len(Db))
+	//这里没有直接用grouo中的cache而是自定义map来获取数据
 	g := NewGroup("g1", GetterFunc(
 		func(key string) ([]byte, error) {
-			log.Println("[slowDB] search key:", key)
-			if val, ok := db[key]; ok {
+			log.Println("[slowDb] search key:", key)
+			if val, ok := Db[key]; ok {
 				if _, ok := loadCounts[key]; !ok {
 					loadCounts[key] = 0
 				}
@@ -48,7 +49,7 @@ func TestGroupGet(t *testing.T) {
 		}), 2<<10)
 
 	//bv, err := g.Get("Tom")
-	for key, val := range db {
+	for key, val := range Db {
 		if v, err := g.Get(key); err != nil || v.String() != val {
 			t.Fatalf("not find [key:%s,value:%s]", key, val)
 		}

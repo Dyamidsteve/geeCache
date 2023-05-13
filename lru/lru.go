@@ -80,13 +80,13 @@ func (c *Cache) Add(key string, val Value) {
 
 		//修改当前使用的内存
 		c.nBytes += int64(val.Len() - ent.value.Len())
-		ele.Value = val //赋值
+		ent.value = val
 
 	} else {
 		//将其添加到队尾
-		entry := c.ll.PushFront(&entry{key: key, value: val})
+		ent := c.ll.PushFront(&entry{key, val})
 		//为cache中map添加该映射
-		c.cache[key] = entry
+		c.cache[key] = ent
 		//增加内存消耗
 		c.nBytes += int64(len(key)) + int64(val.Len())
 	}
